@@ -1,5 +1,5 @@
 use anyhow::Result;
-use egui::{Color32, Response, TextEdit, Ui};
+use egui::{Color32, Response, TextEdit, Ui, ScrollArea};
 use ropey::Rope;
 use std::path::{Path, PathBuf};
 use syntect::easy::HighlightLines;
@@ -57,23 +57,18 @@ impl Buffer {
             &theme_set.themes["base16-ocean.dark"]
         });
         
-        // Create a basic text editor widget
-        let mut editor_contents = content_str.clone();
-        let response = TextEdit::multiline(&mut editor_contents)
-            .desired_width(f32::INFINITY)
-            .font(egui::TextStyle::Monospace)
-            .code_editor()
-            .lock_focus(true)
-            .show(ui)
-            .response;
-            
-        // Check if the content was modified
-        if editor_contents != content_str {
-            self.content = Rope::from_str(&editor_contents);
-            self.modified = true;
-        }
+        // Create a read-only text display
+        ScrollArea::vertical().show(ui, |ui| {
+            TextEdit::multiline(&mut content_str.clone())
+                .desired_width(f32::INFINITY)
+                .font(egui::TextStyle::Monospace)
+                .code_editor()
+                .interactive(false)  // Make it non-interactive (read-only)
+                .show(ui)
+                .response
+        }).inner
         
-        response
+        // Since we're read-only, no need to check for modifications
     }
     
     pub fn save(&mut self) -> Result<()> {
