@@ -1,0 +1,29 @@
+[package]
+name = "code-reader"
+version = "0.1.0"
+edition = "2021"
+authors = ["Your Name <your.email@example.com>"]
+description = "A code editor with interactive navigation and sliding panes"
+
+[dependencies]
+# GUI framework
+egui = "0.22.0"
+eframe = "0.22.0"
+# File handling
+walkdir = "2.3.3"
+notify = "5.1.0"
+# Syntax highlighting
+syntect = "5.0.0"
+# Text buffer
+ropey = "1.6.0"
+# Error handling
+anyhow = "1.0.71"
+# Async runtime
+tokio = { version = "1.28.1", features = ["full"] }
+# Logging
+log = "0.4.17"
+env_logger = "0.10.0"
+# Path handling
+pathdiff = "0.2.1"
+# File dialog
+rfd = "0.11.3"
