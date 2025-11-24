@@ -78,7 +78,7 @@ impl CodeReaderApp {
         });
     }
     
-    fn render_sidebar(&mut self, ui: &mut egui::Ui) {
+    fn render_sidebar(&mut self, ctx: &egui::Context) {
         if self.sidebar_width <= 0.0 {
             return;
         }
@@ -87,7 +87,7 @@ impl CodeReaderApp {
             .resizable(true)
             .default_width(self.sidebar_width)
             .width_range(100.0..=400.0)
-            .show_inside(ui, |ui| {
+            .show(ctx, |ui| {
                 ui.heading("Files");
                 ui.separator();
                 
@@ -111,32 +111,38 @@ impl CodeReaderApp {
     }
     
     fn render_editor_area(&mut self, ui: &mut egui::Ui) {
-        egui::CentralPanel::default().show_inside(ui, |ui| {
-            // Render tabs
+        // Use vertical layout to stack tabs and editor
+        ui.vertical(|ui| {
+            // Render tabs (fixed height)
             self.editor_state.render_tabs(ui);
             
-            // Render editor for the active buffer
-            self.editor_state.render_editor(ui);
+            // Render editor for the active buffer - takes remaining available height
+            ui.allocate_ui_with_layout(
+                egui::Vec2::new(ui.available_width(), ui.available_height()),
+                egui::Layout::top_down(egui::Align::LEFT),
+                |ui| {
+                    self.editor_state.render_editor(ui);
+                }
+            );
         });
     }
 }
 
 impl eframe::App for CodeReaderApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
-            // Render menu bar
+        // Render menu bar at the top
+        egui::TopBottomPanel::top("menu_bar").show(ctx, |ui| {
             self.render_menu_bar(ui);
-            
-            // Main content with sidebar and editor area
-            egui::Frame::none()
-                .fill(self.theme.background_color)
-                .show(ui, |ui| {
-                    // Split layout for sidebar and editor
-                    ui.horizontal(|ui| {
-                        self.render_sidebar(ui);
-                        self.render_editor_area(ui);
-                    });
-                });
         });
+        
+        // Render sidebar
+        self.render_sidebar(ctx);
+        
+        // Render main editor area in central panel
+        egui::CentralPanel::default()
+            .frame(egui::Frame::none().fill(self.theme.background_color))
+            .show(ctx, |ui| {
+                self.render_editor_area(ui);
+            });
     }
 }

@@ -57,16 +57,15 @@ impl Buffer {
             &theme_set.themes["base16-ocean.dark"]
         });
         
-        // Create a read-only text display
-        ScrollArea::vertical().show(ui, |ui| {
-            TextEdit::multiline(&mut content_str.clone())
-                .desired_width(f32::INFINITY)
-                .font(egui::TextStyle::Monospace)
-                .code_editor()
-                .interactive(false)  // Make it non-interactive (read-only)
-                .show(ui)
-                .response
-        }).inner
+        // Create a read-only text display (ScrollArea is handled by render_editor)
+        // The TextEdit will size based on content, and the outer ScrollArea handles scrolling
+        TextEdit::multiline(&mut content_str.clone())
+            .desired_width(f32::INFINITY)
+            .font(egui::TextStyle::Monospace)
+            .code_editor()
+            .interactive(false)  // Make it non-interactive (read-only)
+            .show(ui)
+            .response
         
         // Since we're read-only, no need to check for modifications
     }
